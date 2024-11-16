@@ -70,7 +70,7 @@ if __name__ == "__main__":
     err = []
     for n in levels:
         Nmesh = np.linspace(0,1,n)
-        mat,f = create_stuff(n,lambda x:1,lambda x:1/(2+x))
+        mat,f = create_stuff(n, lambda x:1, lambda x:1/(2+x))
         u = sp.sparse.linalg.spsolve(mat,f)
         real_u = real_sol(Nmesh)
         err.append(np.sum(np.abs(u- real_u)**2))
