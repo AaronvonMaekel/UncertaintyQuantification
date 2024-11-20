@@ -117,9 +117,9 @@ if __name__ == "__main__":
     #plt.show()
     #######################d
     q = 2
-    hmesh = 0.01*np.logspace(-0,-5,10,base=2)
+    hmesh = 0.2*np.logspace(-0,-5,10,base=2)
     MC_mean  = np.empty((len(hmesh))) 
-    N_samples = 1000
+    N_samples = 10000
     print(hmesh)
     i = 0
     MC_samples = np.empty(N_samples)
