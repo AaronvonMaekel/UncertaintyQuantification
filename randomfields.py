@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.random as random
 import matplotlib.pyplot as plt
-from scipy.fft import fft
+from scipy.fft import fft,ifft
 from scipy.special import kv,gamma
 
 def p(x):
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     Grid1D = np.linspace(0,1,N,endpoint=False)
  
     #i)
-    vector_c = matern(Grid1D -Grid1D[0]* np.ones_like(Grid1D),10,1)
+    vector_c = matern(Grid1D ,2,rho=0.1)
     #vector_c = p(Grid1D -Grid1D[0]* np.ones_like(Grid1D))
     plt.figure()
      
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     #ii)
     circle_c = np.concatenate([vector_c, np.flip(vector_c[1:-1])] )
  
-    lam   = np.sqrt(N * fft(circle_c))
+    lam   = np.sqrt(N * ifft(circle_c))
     
     #iii)
     theta1= random.normal(size=(2*(N-1)))
