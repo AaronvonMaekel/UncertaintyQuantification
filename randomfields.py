@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.random as random
 import matplotlib.pyplot as plt
+import seaborn as sns
 from scipy.fft import fft,ifft
 from scipy.special import kv,gamma
 
@@ -19,16 +20,16 @@ def matern(x, nu, rho, var2=1):
         return np.append(1 ,var2/((2**(nu-1))*gamma(nu)) * ((2*np.sqrt(nu)*x[1:]/rho)**nu) * kv(nu,2*np.sqrt(nu)*x[1:]/rho))
 if __name__ == "__main__":
     #a)
-    N=5
- 
+    N=500
+    trials =1000
     Grid1D = np.linspace(0,1,N,endpoint=False)
  
     #i)
-    vector_c = matern(Grid1D ,2,rho=0.1)
-    real_cov_mat = np.diag(np.ones(len(vector_c))*vector_c[0],0)
+    vector_c = matern(Grid1D ,0.5,rho=1)
+    real_cov_mat = np.diag(np.ones(N)*vector_c[0],0)
     for i in range(1,len(vector_c)):
-        real_cov_mat += np.diag(np.ones(len(vector_c)-i)*vector_c[i],i)
-        real_cov_mat += np.diag(np.ones(len(vector_c)-i)*vector_c[i],-i)
+        real_cov_mat += np.diag(np.ones(N-i)*vector_c[i],i)
+        real_cov_mat += np.diag(np.ones(N-i)*vector_c[i],-i)
     #print(real_cov_mat)
     #vector_c = p(Grid1D -Grid1D[0]* np.ones_like(Grid1D))
     plt.figure()
@@ -45,21 +46,40 @@ if __name__ == "__main__":
 
     # Show the plot
     plt.show()
+    samples= np.empty((trials*2,N))
+    heatmap=np.zeros((N,N))
+
+
 
     #ii)
     circle_c = np.concatenate([vector_c, np.flip(vector_c[1:-1])] )
  
     lam   = np.sqrt(N * ifft(circle_c))
-    
+
     #iii)
-    theta1= random.normal(size=(2*(N-1)))
-    theta2= random.normal(size=(2*(N-1)))
-    z_complex = fft(lam*(theta1 + theta2 * 1j))/np.sqrt(2*(N-1))
- 
- 
+    for i in range(trials):
+        theta1= random.normal(size=(2*(N-1)))
+        theta2= random.normal(size=(2*(N-1)))
+        z_complex = fft(lam*(theta1 + theta2 * 1j))/np.sqrt(2*(N-1))
     
-    realisation1 = z_complex.real[:N]
-    realisation2 = z_complex.imag[:N]
+        samples[i*2]    = z_complex.real[:N]
+        samples[i*2 +1] = z_complex.imag[:N]
+
+    sample_mean = np.mean(samples,axis=0)
+    for i in range(trials*2):
+        heatmap += np.outer((samples[i]-sample_mean),(samples[i]-sample_mean))
+        
+    realisation1 = samples[0]
+    realisation2 = samples[1]
+     
+    heatmap/= (2*trials) - 1
+    heatmap -= real_cov_mat
+   
+    plt.figure()
+    sns.heatmap(heatmap, cmap='coolwarm')
+
+    
+    plt.show()
     
     plt.figure()
     plt.plot(Grid1D, realisation1, label='First realisation', color='b')  # Plot the first curve in blue
